@@ -2,25 +2,31 @@ const TransactionModel = require("../models/transactionModel");
 const WalletModel = require("../models/walletModel");
 
 const Queue = require('bull');
-const queue = new Queue('walletTransactions');
+const queue = new Queue('walletTransactions', {
+  redis: {
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT
+  }
+});
 
-queue.process(async (job, done) => {
+queue.process(async (job) => {
   console.log(job)
   const result = await createTransaction(job.data);
-  done(result);
+  return result;
 })
 
 const createTransactionWrapper = async (req, res) => {
   try {
 
-    queue.add({
+    await queue.add({
       walletId: req.params.walletId,
       amount: req.body.amount,
       description: req.body.description
-    }).then(() => console.log("task added to queue"))
+    })
 
-    queue.on("completed", (data) => {
-      res.send(data);
+    queue.on("completed", (job, result) => {
+      console.log(result)
+      res.send(result)
     })
 
   }

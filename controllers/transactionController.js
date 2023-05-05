@@ -39,6 +39,7 @@ const createTransactionWrapper = async (req, res) => {
 const createTransaction = async (data) => {
   try {
     const { walletId, amount, description } = data;
+    console.log(data)
 
     // check if walledId is valid
     const result = await WalletModel.findById(walletId);
@@ -52,7 +53,7 @@ const createTransaction = async (data) => {
         return { statusCode: 500, message: "insufficient balance" };
       }
       else {
-        const updateResult = await WalletModel.updateOne({ _id: walletId }, { balance: { $inc: amount } })
+        const updateResult = await WalletModel.updateOne({ _id: walletId }, { $inc: { balance: amount } })
         const transactionResult = await TransactionModel.create({
           walletId, amount, description
         });

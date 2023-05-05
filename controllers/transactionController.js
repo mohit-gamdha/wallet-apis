@@ -39,7 +39,6 @@ const createTransactionWrapper = async (req, res) => {
 const createTransaction = async (data) => {
   try {
     const { walletId, amount, description } = data;
-    console.log(data)
 
     // check if walledId is valid
     const result = await WalletModel.findById(walletId);
@@ -58,7 +57,7 @@ const createTransaction = async (data) => {
           walletId, amount, description
         });
         const respObj = {
-          balance: updateResult, // otherwise fetch the balance from DB again
+          balance: currentBalance + amount, // otherwise fetch the balance from DB again
           transactionId: transactionResult._id
         }
         return { statusCode: 201, data: respObj };
